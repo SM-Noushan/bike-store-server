@@ -27,6 +27,30 @@ const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleProductById = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+
+    // get specific product based on id from the database
+    const result = await ProductServices.getSingleProductByIdFromDB(
+      String(productId),
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Bike retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Bike",
+      error,
+      stack: (error as Error).stack,
+    });
+  }
+};
+
 const createProduct = async (req: Request, res: Response) => {
   try {
     const productData: ProductCategory = req.body;
@@ -54,4 +78,8 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const ProductControllers = { getAllProducts, createProduct };
+export const ProductControllers = {
+  getAllProducts,
+  getSingleProductById,
+  createProduct,
+};
