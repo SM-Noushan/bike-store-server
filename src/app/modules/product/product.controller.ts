@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ProductServices } from "./product.service";
-import { ProductCategory } from "./product.interface";
+import { TProduct } from "./product.interface";
 import ProductValidationSchema from "./product.validation";
 
 const getAllProducts = async (req: Request, res: Response) => {
@@ -53,7 +53,7 @@ const getSingleProductById = async (req: Request, res: Response) => {
 
 const createProduct = async (req: Request, res: Response) => {
   try {
-    const productData: ProductCategory = req.body;
+    const productData: TProduct = req.body;
 
     // validate the incoming data with the zod schema
     const { success, data, error } =
@@ -81,7 +81,7 @@ const createProduct = async (req: Request, res: Response) => {
 const updateProduct = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
-    const productData: Partial<ProductCategory> = req.body;
+    const productData: Partial<TProduct> = req.body;
 
     // check if the incoming data is empty
     if (Object.keys(productData).length === 0)
