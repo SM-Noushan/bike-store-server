@@ -8,6 +8,7 @@ productRouter
   .post("/", ProductControllers.createProduct);
 productRouter
   .get("/:productId", ProductControllers.getSingleProductById)
-  .patch("/:productId", ProductControllers.updateProduct);
+  .patch("/:productId", ProductControllers.updateProduct)
+  .delete("/:productId", ProductControllers.deleteProduct);
 
 export const ProductRoutes = productRouter;
