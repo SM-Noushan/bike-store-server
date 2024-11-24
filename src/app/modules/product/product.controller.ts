@@ -3,6 +3,30 @@ import { ProductServices } from "./product.service";
 import { ProductCategory } from "./product.interface";
 import ProductValidationSchema from "./product.validation";
 
+const getAllProducts = async (req: Request, res: Response) => {
+  try {
+    const { searchTerm = "" } = req.query;
+
+    // get all products from the database
+    const result = await ProductServices.getAllProductsFromDB(
+      String(searchTerm),
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Bikes retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Bikes",
+      error,
+      stack: (error as Error).stack,
+    });
+  }
+};
+
 const createProduct = async (req: Request, res: Response) => {
   try {
     const productData: ProductCategory = req.body;
@@ -17,17 +41,17 @@ const createProduct = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: "Product created successfully",
+      message: "Bike created successfully",
       data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create product",
+      message: "Failed to create Bike",
       error,
       stack: (error as Error).stack,
     });
   }
 };
 
-export const ProductControllers = { createProduct };
+export const ProductControllers = { getAllProducts, createProduct };
