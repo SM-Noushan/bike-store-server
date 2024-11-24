@@ -1,6 +1,3 @@
-Here’s the updated and refined `README.md`, with a generic folder structure and no duplicates:
-
-````markdown
 # Bike Store Management API
 
 An Express-based application built with TypeScript for managing a Bike Store, integrated with MongoDB using Mongoose. This application provides APIs to manage products (bikes) and orders with robust schema validation and error handling.
@@ -52,7 +49,6 @@ An Express-based application built with TypeScript for managing a Bike Store, in
    git clone https://github.com/sm-noushan/bike-store-server.git
    cd bike-store-server
    ```
-````
 
 2. Install dependencies:
 
@@ -68,7 +64,7 @@ An Express-based application built with TypeScript for managing a Bike Store, in
    npm run start:dev
    ```
 
-5. Access the API at `http://localhost:6009`.
+5. Access the API at `http://localhost:3333`.
 
 ---
 
