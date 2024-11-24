@@ -20,7 +20,7 @@ const getAllProducts = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve Bikes",
+      message: (error as Error).message || "Failed to retrieve Bikes",
       error,
       stack: (error as Error).stack,
     });
@@ -44,7 +44,7 @@ const getSingleProductById = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve Bike",
+      message: (error as Error).message || "Failed to retrieve Bike",
       error,
       stack: (error as Error).stack,
     });
@@ -71,7 +71,39 @@ const createProduct = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to create Bike",
+      message: (error as Error).message || "Failed to create Bike",
+      error,
+      stack: (error as Error).stack,
+    });
+  }
+};
+
+const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const productData: Partial<ProductCategory> = req.body;
+
+    // check if the incoming data is empty
+    if (Object.keys(productData).length === 0)
+      throw new Error("Please provide data to update");
+
+    // validate the incoming data with the zod schema
+    const { success, data, error } =
+      ProductValidationSchema.partial().safeParse(productData);
+    if (!success) throw error;
+
+    // update the product in the database
+    const result = await ProductServices.updateProductIntoDB(productId, data);
+
+    res.status(200).json({
+      success: true,
+      message: "Bike updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: (error as Error).message || "Failed to update Bike",
       error,
       stack: (error as Error).stack,
     });
@@ -82,4 +114,5 @@ export const ProductControllers = {
   getAllProducts,
   getSingleProductById,
   createProduct,
+  updateProduct,
 };
