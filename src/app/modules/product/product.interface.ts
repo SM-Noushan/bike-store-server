@@ -1,8 +1,15 @@
+export enum ProductCategory {
+  Mountain = "Mountain",
+  Road = "Road",
+  Hybrid = "Hybrid",
+  Electric = "Electric",
+}
+
 export interface TProduct {
   name: string;
   brand: string;
   price: number;
-  category: "Mountain" | "Road" | "Hybrid" | "Electric";
+  category: ProductCategory;
   description: string;
   quantity: number;
   inStock: boolean;
