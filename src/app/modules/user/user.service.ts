@@ -25,8 +25,22 @@ const changeStatus = async (id: string) => {
   return user;
 };
 
+const updateDeliveryAddress = async (email: string, deliverAddress: string) => {
+  console.log(email, deliverAddress);
+  const userInfo = (await User.validateUser({
+    payload: { email, password: "" },
+  })) as unknown as Document & TUser;
+
+  // update delivery address
+  userInfo.deliveryAddress = deliverAddress;
+  await userInfo.save();
+
+  return { userInfo };
+};
+
 export const UserServices = {
   getMe,
   getAllUsers,
   changeStatus,
+  updateDeliveryAddress,
 };

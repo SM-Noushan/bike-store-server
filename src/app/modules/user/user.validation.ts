@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { trimmedString } from "./../utils/validation";
 
-const ChangeStatusValidationSchema = z.object({
+const ChangeDeliveryAddressValidationSchema = z.object({
   body: z.object({
-    status: z.enum(["in-progress", "blocked"]),
+    deliveryAddress: trimmedString,
   }),
 });
 
 export const UserValidations = {
-  ChangeStatusValidationSchema,
+  ChangeDeliveryAddressValidationSchema,
 };

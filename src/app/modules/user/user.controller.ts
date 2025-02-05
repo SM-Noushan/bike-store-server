@@ -4,8 +4,7 @@ import { UserServices } from "./user.service";
 import sendResponse from "../utils/sendResponse";
 
 const getMe = catchAsync(async (req, res) => {
-  const { email } = req.user;
-  const result = await UserServices.getMe(email);
+  const result = await UserServices.getMe(req.user.email);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -34,8 +33,22 @@ const changeStatus = catchAsync(async (req, res) => {
   });
 });
 
+const updateDeliverAddress = catchAsync(async (req, res) => {
+  const result = await UserServices.updateDeliveryAddress(
+    req.user.email,
+    req.body.deliveryAddress,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Delivery address changed successfully",
+    data: result,
+  });
+});
+
 export const userControllers = {
   getMe,
   getUsers,
   changeStatus,
+  updateDeliverAddress,
 };
