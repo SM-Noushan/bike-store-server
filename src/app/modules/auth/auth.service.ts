@@ -33,13 +33,11 @@ const registerUser = async (payload: TRegisterUser) => {
   return { accessToken, user };
 };
 
-const changePassword = async (
-  userData: { email: string },
-  payload: TPasswordChange,
-) => {
+const changePassword = async (email: string, payload: TPasswordChange) => {
   // validate user => check if user exists, is deleted, is blocked, and password is correct
   const userInfo = (await User.validateUser({
-    payload: { email: userData.email, password: payload.currentPassword },
+    payload: { email, password: payload.currentPassword },
+    checkIsPasswordMatched: true,
   })) as unknown as Document & TUser;
   // update password
   userInfo.password = payload.newPassword;

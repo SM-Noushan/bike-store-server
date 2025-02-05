@@ -3,7 +3,7 @@ import status from "http-status";
 import config from "../../config";
 import AppError from "../errors/AppError";
 
-const decodeToken = async (token: string) => {
+const decodeToken = (token: string) => {
   try {
     const decoded = jwt.verify(token, config.jwtSecret as string);
     return decoded;
