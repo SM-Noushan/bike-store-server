@@ -1,17 +1,20 @@
-import { TProduct } from "./product.interface";
 import { Product } from "./product.model";
+import { TProduct } from "./product.interface";
+import QueryBuilder from "../../builder/QueryBuilder";
+import { ProductSearchableFields } from "./product.constant";
 
-const getAllProductsFromDB = async (searchTerm: string) => {
-  // search query
-  const query = {
-    $or: [
-      { name: { $regex: searchTerm, $options: "i" } },
-      { brand: { $regex: searchTerm, $options: "i" } },
-      { category: { $regex: searchTerm, $options: "i" } },
-    ],
-  };
-  const result = await Product.find(query);
-  return result;
+const getAllProductsFromDB = async (query: Record<string, unknown>) => {
+  const productsQuery = new QueryBuilder(Product.find(), query)
+    .search(ProductSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await productsQuery.modelQuery;
+  const meta = await productsQuery.countTotal();
+
+  return { meta, result };
 };
 
 const getSingleProductByIdFromDB = async (productId: string) => {

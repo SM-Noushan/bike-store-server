@@ -3,6 +3,10 @@ import { ProductCategory, TProduct } from "./product.interface";
 
 const productSchema = new Schema<TProduct>(
   {
+    image: {
+      type: String,
+      required: [true, "Product Image is required"],
+    },
     name: {
       type: String,
       required: [true, "Product Name is required"],
@@ -11,6 +15,11 @@ const productSchema = new Schema<TProduct>(
     brand: {
       type: String,
       required: [true, "Product Brand is required"],
+      trim: true,
+    },
+    model: {
+      type: String,
+      required: [true, "Product Model is required"],
       trim: true,
     },
     price: {

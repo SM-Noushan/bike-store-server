@@ -5,17 +5,14 @@ import ProductValidationSchema from "./product.validation";
 
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { searchTerm = "" } = req.query;
-
     // get all products from the database
-    const result = await ProductServices.getAllProductsFromDB(
-      String(searchTerm),
-    );
+    const result = await ProductServices.getAllProductsFromDB(req.query);
 
     res.status(200).json({
       success: true,
       message: "Bikes retrieved successfully",
-      data: result,
+      data: result.result,
+      meta: result.meta,
     });
   } catch (error) {
     res.status(500).json({

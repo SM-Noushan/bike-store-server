@@ -10,8 +10,10 @@ const nonNegativeNumber = z.number().nonnegative("Value cannot be negative");
 
 // Schema for TProduct
 const ProductValidationSchema = z.object({
+  image: z.string().url(),
   name: trimmedString,
   brand: trimmedString,
+  model: trimmedString,
   price: nonNegativeNumber,
   category: ProductCategoryValidationSchema,
   description: trimmedString,

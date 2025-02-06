@@ -7,8 +7,10 @@ export enum ProductCategory {
 }
 
 export interface TProduct {
+  image: string;
   name: string;
   brand: string;
+  model: string;
   price: number;
   category: ProductCategory;
   description: string;
