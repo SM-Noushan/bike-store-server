@@ -6,3 +6,5 @@ export const USER_ROLE = {
 } as const;
 
 export const UserRoleEnum: TUserRole[] = Object.values(USER_ROLE);
+
+export const UserSearchableFields = ["name", "email"];

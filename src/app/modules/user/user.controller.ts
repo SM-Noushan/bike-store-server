@@ -14,12 +14,13 @@ const getMe = catchAsync(async (req, res) => {
 });
 
 const getUsers = catchAsync(async (req, res) => {
-  const result = await UserServices.getAllUsers();
+  const result = await UserServices.getAllUsers(req.query);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "Users data retrieved successfully",
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
