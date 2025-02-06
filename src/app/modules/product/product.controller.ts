@@ -1,133 +1,63 @@
-import { Request, Response } from "express";
+import status from "http-status";
+import catchAsync from "../utils/catchAsync";
+import sendResponse from "../utils/sendResponse";
 import { ProductServices } from "./product.service";
-import { TProduct } from "./product.interface";
-import ProductValidationSchema from "./product.validation";
 
-const getAllProducts = async (req: Request, res: Response) => {
-  try {
-    // get all products from the database
-    const result = await ProductServices.getAllProductsFromDB(req.query);
+const getAllProducts = catchAsync(async (req, res) => {
+  const result = await ProductServices.getAllProductsFromDB(req.query);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Bikes retrieved successfully",
+    data: result.result,
+    meta: result.meta,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      message: "Bikes retrieved successfully",
-      data: result.result,
-      meta: result.meta,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message || "Failed to retrieve Bikes",
-      error,
-      stack: (error as Error).stack,
-    });
-  }
-};
+const getSingleProductById = catchAsync(async (req, res) => {
+  const result = await ProductServices.getSingleProductByIdFromDB(
+    req.params.productId,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Bike retrieved successfully",
+    data: result,
+  });
+});
 
-const getSingleProductById = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
+const createProduct = catchAsync(async (req, res) => {
+  const result = await ProductServices.createProductIntoDB(req.body);
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "Bike created successfully",
+    data: result,
+  });
+});
 
-    // get specific product based on id from the database
-    const result = await ProductServices.getSingleProductByIdFromDB(
-      String(productId),
-    );
+const updateProduct = catchAsync(async (req, res) => {
+  const result = await ProductServices.updateProductIntoDB(
+    req.params.productId,
+    req.body,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Bike updated successfully",
+    data: result,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      message: "Bike retrieved successfully",
-      data: result,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message || "Failed to retrieve Bike",
-      error,
-      stack: (error as Error).stack,
-    });
-  }
-};
-
-const createProduct = async (req: Request, res: Response) => {
-  try {
-    const productData: TProduct = req.body;
-
-    // validate the incoming data with the zod schema
-    const { success, data, error } =
-      ProductValidationSchema.safeParse(productData);
-    if (!success) throw error;
-
-    // create the product in the database
-    const result = await ProductServices.createProductIntoDB(data);
-
-    res.status(200).json({
-      success: true,
-      message: "Bike created successfully",
-      data: result,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message || "Failed to create Bike",
-      error,
-      stack: (error as Error).stack,
-    });
-  }
-};
-
-const updateProduct = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-    const productData: Partial<TProduct> = req.body;
-
-    // check if the incoming data is empty
-    if (Object.keys(productData).length === 0)
-      throw new Error("Please provide data to update");
-
-    // validate the incoming data with the zod schema
-    const { success, data, error } =
-      ProductValidationSchema.partial().safeParse(productData);
-    if (!success) throw error;
-
-    // update the product in the database
-    const result = await ProductServices.updateProductIntoDB(productId, data);
-
-    res.status(200).json({
-      success: true,
-      message: "Bike updated successfully",
-      data: result,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message || "Failed to update Bike",
-      error,
-      stack: (error as Error).stack,
-    });
-  }
-};
-
-const deleteProduct = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-
-    // delete product based on id from the database
-    await ProductServices.deleteProductFromDB(String(productId));
-
-    res.status(200).json({
-      success: true,
-      message: "Bike deleted successfully",
-      data: {},
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message || "Failed to delete Bike",
-      error,
-      stack: (error as Error).stack,
-    });
-  }
-};
+const deleteProduct = catchAsync(async (req, res) => {
+  await ProductServices.deleteProductFromDB(req.params.productId);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Bike deleted successfully",
+    data: {},
+  });
+});
 
 export const ProductControllers = {
   getAllProducts,

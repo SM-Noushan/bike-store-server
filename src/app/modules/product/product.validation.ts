@@ -9,16 +9,24 @@ const trimmedString = z.string().trim().min(1, "Field cannot be empty");
 const nonNegativeNumber = z.number().nonnegative("Value cannot be negative");
 
 // Schema for TProduct
-const ProductValidationSchema = z.object({
-  image: z.string().url(),
-  name: trimmedString,
-  brand: trimmedString,
-  model: trimmedString,
-  price: nonNegativeNumber,
-  category: ProductCategoryValidationSchema,
-  description: trimmedString,
-  quantity: z.number().int().nonnegative("Quantity cannot be negative"),
-  inStock: z.boolean(),
+const addProductSchema = z.object({
+  body: z.object({
+    image: z.string().url(),
+    name: trimmedString,
+    brand: trimmedString,
+    model: trimmedString,
+    price: nonNegativeNumber,
+    category: ProductCategoryValidationSchema,
+    description: trimmedString,
+    quantity: z.number().int().nonnegative("Quantity cannot be negative"),
+  }),
 });
 
-export default ProductValidationSchema;
+const updateProductSchema = z.object({
+  body: addProductSchema.shape.body.deepPartial(),
+});
+
+export const ProductValidationSchema = {
+  addProductSchema,
+  updateProductSchema,
+};
