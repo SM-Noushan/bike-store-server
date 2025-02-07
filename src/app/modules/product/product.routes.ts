@@ -9,6 +9,7 @@ const productRouter = express.Router();
 
 productRouter
   .get("/", ProductControllers.getAllProducts)
+  .get("/brand-model-category", ProductControllers.getAllBrandModelAndCategory)
   .post(
     "/",
     validateRequest(ProductValidationSchema.addProductSchema),

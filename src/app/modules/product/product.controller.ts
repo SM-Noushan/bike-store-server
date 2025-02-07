@@ -26,6 +26,16 @@ const getSingleProductById = catchAsync(async (req, res) => {
   });
 });
 
+const getAllBrandModelAndCategory = catchAsync(async (req, res) => {
+  const result = await ProductServices.getAllBrandModelAndCategoryFromDB();
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Brands, Models and Category retrieved successfully",
+    data: result,
+  });
+});
+
 const createProduct = catchAsync(async (req, res) => {
   const result = await ProductServices.createProductIntoDB(req.body);
   sendResponse(res, {
@@ -62,6 +72,7 @@ const deleteProduct = catchAsync(async (req, res) => {
 export const ProductControllers = {
   getAllProducts,
   getSingleProductById,
+  getAllBrandModelAndCategory,
   createProduct,
   updateProduct,
   deleteProduct,

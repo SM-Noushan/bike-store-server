@@ -24,42 +24,61 @@ class QueryBuilder<T> {
     const filterQueryObj = { ...this.query };
     const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
     excludeFields.forEach(field => delete filterQueryObj[field]);
-
     const caseInsensitiveFilter: Record<string, unknown> = {};
+
+    const applyPriceFilter = (key: string, numValue: number) => {
+      if (key.includes("minprice"))
+        caseInsensitiveFilter["price"] = {
+          ...(caseInsensitiveFilter["price"] || {}),
+          $gte: numValue,
+        };
+      else if (key.includes("maxprice"))
+        caseInsensitiveFilter["price"] = {
+          ...(caseInsensitiveFilter["price"] || {}),
+          $lte: numValue,
+        };
+      else caseInsensitiveFilter[key] = numValue;
+    };
 
     for (const [key, value] of Object.entries(filterQueryObj)) {
       // Skip empty strings
       if (typeof value === "string" && value.trim() === "") continue;
 
       // If the value is an array, use $in
-      if (Array.isArray(value)) {
-        // You can optionally transform each element if needed (e.g., trim, etc.)
-        caseInsensitiveFilter[key] = { $in: value };
-      }
+      if (Array.isArray(value)) caseInsensitiveFilter[key] = { $in: value };
       // If the value is a string and contains a comma, split it and use $in
       else if (typeof value === "string" && value.includes(",")) {
         const vals = value
           .split(",")
           .map(v => v.trim())
           .filter(Boolean);
-        if (vals.length) {
-          caseInsensitiveFilter[key] = { $in: vals };
-        }
+        if (vals.length)
+          caseInsensitiveFilter[key] = {
+            $in: vals.map(v => new RegExp(`^${v}$`, "i")),
+          };
       }
-      // If the value is a string that looks numeric, convert to a number
+      // If the value is a string that can be converted to a number, convert it
       else if (
-        typeof value === "string" &&
+        (typeof value === "string" || typeof value === "number") &&
         !Number.isNaN(Number(value)) &&
-        value.trim() !== ""
+        value.toString().trim() !== "" &&
+        key.toLowerCase() !== "model"
       ) {
-        caseInsensitiveFilter[key] = Number(value);
+        const numValue = Number(value);
+        const lowerKey = key.toLowerCase();
+
+        if (lowerKey.includes("price")) applyPriceFilter(lowerKey, numValue);
+        else caseInsensitiveFilter[key] = numValue;
       }
       // If the value is a number, add it directly
       else if (typeof value === "number" && !Number.isNaN(value)) {
-        caseInsensitiveFilter[key] = value;
+        const lowerKey = key.toLowerCase();
+
+        if (lowerKey.includes("price")) applyPriceFilter(lowerKey, value);
+        else caseInsensitiveFilter[key] = value;
       }
       // Otherwise, treat non-empty strings with regex for case-insensitive matching.
-      else if (typeof value === "string") {
+      else if (typeof value === "string")
         if (value === "true" || value === "false")
           caseInsensitiveFilter[key] = value === "true";
         else
@@ -67,7 +86,6 @@ class QueryBuilder<T> {
             $regex: `^${value}$`,
             $options: "i",
           };
-      }
       // Skip null, undefined, and other types
     }
 

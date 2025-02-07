@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 export enum ProductCategory {
-  Mountain = "Mountain",
-  Road = "Road",
-  Hybrid = "Hybrid",
-  Electric = "Electric",
+  mountain = "mountain",
+  road = "road",
+  hybrid = "hybrid",
+  electric = "electric",
 }
 
 export interface TProduct {

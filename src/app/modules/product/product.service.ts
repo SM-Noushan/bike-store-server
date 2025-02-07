@@ -25,6 +25,35 @@ const getSingleProductByIdFromDB = async (productId: string) => {
   return result;
 };
 
+const getAllBrandModelAndCategoryFromDB = async () => {
+  const result = await Product.aggregate([
+    {
+      $project: {
+        brand: { $toLower: "$brand" },
+        model: { $toLower: "$model" },
+        category: { $toLower: "$category" },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        brands: { $addToSet: "$brand" },
+        models: { $addToSet: "$model" },
+        categories: { $addToSet: "$category" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        brands: { $sortArray: { input: "$brands", sortBy: 1 } },
+        models: { $sortArray: { input: "$models", sortBy: 1 } },
+        categories: { $sortArray: { input: "$categories", sortBy: 1 } },
+      },
+    },
+  ]);
+  return result.length ? result[0] : { brands: [], models: [], categories: [] };
+};
+
 const createProductIntoDB = async (productData: TProduct) => {
   const result = await Product.create(productData);
   return result;
@@ -34,6 +63,9 @@ const updateProductIntoDB = async (
   productId: string,
   productData: Partial<TProduct>,
 ) => {
+  if (productData?.quantity === 0) productData.inStock = false;
+  else productData.inStock = true;
+
   const result = await Product.findByIdAndUpdate(
     productId,
     { $set: productData },
@@ -56,6 +88,7 @@ const deleteProductFromDB = async (productId: string) => {
 export const ProductServices = {
   getAllProductsFromDB,
   getSingleProductByIdFromDB,
+  getAllBrandModelAndCategoryFromDB,
   createProductIntoDB,
   updateProductIntoDB,
   deleteProductFromDB,
