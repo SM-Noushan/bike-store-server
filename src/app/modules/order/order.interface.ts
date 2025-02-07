@@ -6,3 +6,8 @@ export interface TOrder {
   quantity: number;
   totalPrice: number;
 }
+
+export type TCheckout = {
+  id: string;
+  quantity: number;
+};
