@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Stripe from "stripe";
 import { ZodError } from "zod";
 import mongoose from "mongoose";
 import { ErrorRequestHandler } from "express";
@@ -27,6 +28,17 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     message = message.match(/"([^"]*)"/)[1] + " already exists";
     errorSources[0].path = Object.keys(error.keyValue)[0];
     errorSources[0].message = message;
+  }
+
+  if (error instanceof Stripe.errors.StripeError) {
+    statusCode = 400;
+    message = error.message || "Stripe error occurred!";
+    errorSources = [
+      {
+        path: error.type,
+        message: message,
+      },
+    ];
   }
 
   if (simplifiedError) {

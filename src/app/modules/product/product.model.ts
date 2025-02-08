@@ -53,4 +53,26 @@ const productSchema = new Schema<TProduct>(
   { timestamps: true },
 );
 
+productSchema.pre("updateOne", async function (next) {
+  const update = this.getUpdate() as {
+    $inc?: { quantity?: number };
+    $set?: { inStock?: boolean };
+  };
+
+  if (update?.$inc?.quantity !== undefined) {
+    const product = await Product.findOne(this.getQuery());
+
+    if (product) {
+      const newStock = product.quantity + update.$inc.quantity;
+
+      if (newStock <= 0) {
+        update.$set = update.$set || {};
+        update.$set.inStock = false;
+      }
+    }
+  }
+
+  next();
+});
+
 export const Product = model<TProduct>("Product", productSchema);

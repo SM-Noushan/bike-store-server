@@ -1,15 +1,64 @@
 import Stripe from "stripe";
 import status from "http-status";
-import { Types } from "mongoose";
 import config from "../../config";
+import { Order } from "./order.model";
 import AppError from "../errors/AppError";
-import { TCheckout } from "./order.interface";
+import mongoose, { Types } from "mongoose";
 import { Product } from "../product/product.model";
+import { IOrder, TCheckout } from "./order.interface";
 
-// const createOrderIntoDB = async (orderData: TOrder) => {
-//   const result = await Order.create(orderData);
-//   return result;
-// };
+const createOrderIntoDB = async (orderData: IOrder) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    await Order.create([orderData], { session });
+
+    const { items } = orderData;
+    const productIds = items.map(item => item.product);
+    const products = await Product.find({ _id: { $in: productIds } }).session(
+      session,
+    );
+    if (products.length !== productIds.length) {
+      await session.abortTransaction();
+      return false;
+    }
+
+    const updates = items.map(item => {
+      const product = products.find(
+        p => p._id.toString() === item.product.toString(),
+      );
+
+      if (!product) return false;
+
+      if (product.quantity < item.quantity) return false;
+
+      return Product.updateOne(
+        { _id: item.product },
+        { $inc: { quantity: -item.quantity } },
+        { session },
+      );
+    });
+
+    const results = await Promise.all(updates);
+
+    if (results.includes(false)) {
+      await session.abortTransaction();
+      return false;
+    }
+    await session.commitTransaction();
+    session.endSession();
+
+    return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  } catch (err) {
+    await session.abortTransaction();
+    return false;
+  } finally {
+    session.endSession();
+  }
+};
+
 // const getTotalRevenueFromDB = async () => {
 //   const result = await Order.aggregate([
 //     // group by distinct product id and get order count
@@ -83,7 +132,7 @@ const checkout = async (email: string, payload: TCheckout[]) => {
   }
 
   const stripe = new Stripe(config.stripeSecretKey as string, {
-    apiVersion: "2025-01-27.acacia",
+    apiVersion: config.stripeApiVersion as undefined,
   });
 
   const formattingItems = products.map(product => ({
@@ -95,12 +144,6 @@ const checkout = async (email: string, payload: TCheckout[]) => {
         name: product.name,
         description: product.description,
         images: [product.image],
-        metadata: {
-          id: product._id.toString(),
-          brand: product.brand,
-          model: product.model,
-          category: product.category,
-        },
       },
     },
   }));
@@ -113,10 +156,11 @@ const checkout = async (email: string, payload: TCheckout[]) => {
     cancel_url: `${config.clientUrl}`,
     metadata: {
       email,
+      products: JSON.stringify(payload),
     },
   });
 
   return session.id;
 };
 
-export const OrderServices = { checkout };
+export const OrderServices = { checkout, createOrderIntoDB };

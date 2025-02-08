@@ -11,4 +11,6 @@ export default {
   jwtExpiresIn: process.env.JWT_ACCESS_EXPIRATION,
   clientUrl: process.env.CLIENT_URL,
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  stripeEndPointSecret: process.env.STRIPE_END_POINT_SECRET,
+  stripeApiVersion: process.env.STRIPE_API_VERSION,
 };
