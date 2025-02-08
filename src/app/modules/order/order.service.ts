@@ -10,16 +10,84 @@ import QueryBuilder from "../../builder/QueryBuilder";
 
 const getMyOrdersFromDB = async (
   email: string,
-  query: Record<string, string>,
+  query: Record<string, unknown>,
 ) => {
   const ordersQuery = new QueryBuilder(Order.find({ email }), query)
     .sort()
     .paginate();
 
   const result = await ordersQuery.modelQuery.populate("items.product");
-  console.log(result);
   const meta = await ordersQuery.countTotal();
   return { meta, result };
+};
+
+const getAllOrderFromDB = async (query: Record<string, unknown>) => {
+  const ordersQuery = new QueryBuilder(Order.find(), query)
+    .search(["email"])
+    .sort()
+    .paginate();
+
+  const result = await ordersQuery.modelQuery.populate("items.product");
+  const meta = await ordersQuery.countTotal();
+  return { meta, result };
+};
+
+const getSingleOrderByIdFromDB = async (orderId: string) => {
+  const result = await Order.aggregate([
+    { $match: { _id: new Types.ObjectId(orderId) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "email",
+        foreignField: "email",
+        as: "userDetails",
+      },
+    },
+    { $unwind: { path: "$userDetails" } },
+    {
+      $lookup: {
+        from: "products",
+        localField: "items.product",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+
+    // Merge Product Details into items array while keeping quantity
+    {
+      $addFields: {
+        items: {
+          $map: {
+            input: "$items",
+            as: "item",
+            in: {
+              product: {
+                $arrayElemAt: [
+                  {
+                    $filter: {
+                      input: "$productDetails",
+                      as: "prod",
+                      cond: { $eq: ["$$prod._id", "$$item.product"] },
+                    },
+                  },
+                  0,
+                ],
+              },
+              quantity: "$$item.quantity",
+            },
+          },
+        },
+      },
+    },
+
+    // Remove unnecessary productDetails array
+    { $unset: "productDetails" },
+  ]);
+
+  if (!result || result.length === 0)
+    throw new AppError(status.NOT_FOUND, "Order not found");
+
+  return result[0];
 };
 
 const createOrderIntoDB = async (orderData: IOrder) => {
@@ -178,4 +246,10 @@ const checkout = async (email: string, payload: TCheckout[]) => {
   return session.id;
 };
 
-export const OrderServices = { checkout, createOrderIntoDB, getMyOrdersFromDB };
+export const OrderServices = {
+  checkout,
+  createOrderIntoDB,
+  getMyOrdersFromDB,
+  getAllOrderFromDB,
+  getSingleOrderByIdFromDB,
+};

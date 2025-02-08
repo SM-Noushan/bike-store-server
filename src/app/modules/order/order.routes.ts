@@ -9,6 +9,16 @@ const orderRouter = express.Router();
 
 // orderRouter.get("/revenue", OrderControllers.totalRevenue);
 orderRouter.get("/", auth(USER_ROLE.customer), OrderControllers.getMyOrders);
+orderRouter.get(
+  "/all-order",
+  auth(USER_ROLE.admin),
+  OrderControllers.getAllOrder,
+);
+orderRouter.get(
+  "/single-order/:id",
+  auth(USER_ROLE.admin),
+  OrderControllers.getSingleOrder,
+);
 orderRouter.post(
   "/checkout",
   validateRequest(OrderValidationSchema.CheckoutValidationSchema),

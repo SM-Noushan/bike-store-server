@@ -1,7 +1,7 @@
 import status from "http-status";
 import catchAsync from "../utils/catchAsync";
-import sendResponse from "../utils/sendResponse";
 import { OrderServices } from "./order.service";
+import sendResponse from "../utils/sendResponse";
 
 // const totalRevenue = async (req: Request, res: Response) => {
 //   try {
@@ -36,6 +36,27 @@ const getMyOrders = catchAsync(async (req, res) => {
   });
 });
 
+const getAllOrder = catchAsync(async (req, res) => {
+  const result = await OrderServices.getAllOrderFromDB(req.query);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Orders fetched successfully",
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
+const getSingleOrder = catchAsync(async (req, res) => {
+  const result = await OrderServices.getSingleOrderByIdFromDB(req.params.id);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Order fetched successfully",
+    data: result,
+  });
+});
+
 const checkout = catchAsync(async (req, res) => {
   const result = await OrderServices.checkout(req.user.email, req.body);
   sendResponse(res, {
@@ -46,4 +67,9 @@ const checkout = catchAsync(async (req, res) => {
   });
 });
 
-export const OrderControllers = { checkout, getMyOrders };
+export const OrderControllers = {
+  checkout,
+  getMyOrders,
+  getAllOrder,
+  getSingleOrder,
+};
