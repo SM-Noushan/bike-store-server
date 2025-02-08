@@ -7,8 +7,8 @@ import validateRequest from "../middlewares/validateRequest";
 
 const orderRouter = express.Router();
 
-// orderRouter.post("/", OrderControllers.createOrder);
 // orderRouter.get("/revenue", OrderControllers.totalRevenue);
+orderRouter.get("/", auth(USER_ROLE.customer), OrderControllers.getMyOrders);
 orderRouter.post(
   "/checkout",
   validateRequest(OrderValidationSchema.CheckoutValidationSchema),

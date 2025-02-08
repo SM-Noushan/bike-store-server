@@ -6,6 +6,21 @@ import AppError from "../errors/AppError";
 import mongoose, { Types } from "mongoose";
 import { Product } from "../product/product.model";
 import { IOrder, TCheckout } from "./order.interface";
+import QueryBuilder from "../../builder/QueryBuilder";
+
+const getMyOrdersFromDB = async (
+  email: string,
+  query: Record<string, string>,
+) => {
+  const ordersQuery = new QueryBuilder(Order.find({ email }), query)
+    .sort()
+    .paginate();
+
+  const result = await ordersQuery.modelQuery.populate("items.product");
+  console.log(result);
+  const meta = await ordersQuery.countTotal();
+  return { meta, result };
+};
 
 const createOrderIntoDB = async (orderData: IOrder) => {
   const session = await mongoose.startSession();
@@ -163,4 +178,4 @@ const checkout = async (email: string, payload: TCheckout[]) => {
   return session.id;
 };
 
-export const OrderServices = { checkout, createOrderIntoDB };
+export const OrderServices = { checkout, createOrderIntoDB, getMyOrdersFromDB };
