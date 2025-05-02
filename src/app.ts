@@ -1,14 +1,13 @@
 import cors from "cors";
 import router from "./app/routes";
+import config from "./app/config";
 import notFound from "./app/modules/middlewares/notFound";
+import { WebhookRoutes } from "./app/websocket/webhook.route";
 import express, { Application, Request, Response } from "express";
 import globalErrorHandler from "./app/modules/middlewares/globalErrorHandler";
-import config from "./app/config";
 
 const app: Application = express();
 
-// parsers
-app.use(express.json());
 app.use(
   cors({
     origin: [config.clientUrl as string],
@@ -16,6 +15,10 @@ app.use(
   }),
 );
 
+// webhooks
+app.use("/webhook", WebhookRoutes);
+
+app.use(express.json());
 // application routes
 app.use("/api", router);
 

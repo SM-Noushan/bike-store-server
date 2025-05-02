@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import { TUser } from "../user/user.interface";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 const createToken = (
   jwtPayload: Pick<TUser, "email" | "role">,
@@ -14,7 +14,7 @@ const createToken = (
     secret,
     {
       expiresIn,
-    },
+    } as SignOptions,
   );
 
 export default createToken;
