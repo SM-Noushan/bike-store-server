@@ -11,7 +11,7 @@ const handleZodError = (error: ZodError): TGenericErrorResponse => {
   });
   return {
     statusCode,
-    message: "Validation Error",
+    message: error?.errors?.[0]?.message || "Validation Error",
     errorSources,
   };
 };

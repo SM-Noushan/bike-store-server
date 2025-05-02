@@ -1,10 +1,13 @@
 /* eslint-disable no-unused-vars */
 export enum ProductCategory {
-  mountain = "mountain",
-  road = "road",
-  hybrid = "hybrid",
-  electric = "electric",
+  scooter = "scooter",
+  sports = "sports",
+  performancesports = "performancesports",
+  commuter = "commuter",
+  supersports = "supersports",
 }
+
+export const ProductCategoryList = Object.values(ProductCategory);
 
 export interface TProduct {
   image: string;

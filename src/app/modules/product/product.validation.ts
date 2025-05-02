@@ -13,8 +13,12 @@ const addProductSchema = z.object({
   body: z.object({
     image: z.string().url(),
     name: trimmedString,
-    brand: trimmedString,
-    model: trimmedString,
+    brand: trimmedString.optional().default("Suzuki"),
+    model: z.coerce
+      .number()
+      .int()
+      .gte(1900, "Year must be >= 1900")
+      .lte(new Date().getFullYear() + 1, "Year must be <= next year"),
     price: nonNegativeNumber,
     category: ProductCategoryValidationSchema,
     description: trimmedString,

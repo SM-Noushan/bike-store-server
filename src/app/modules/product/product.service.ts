@@ -1,5 +1,5 @@
 import { Product } from "./product.model";
-import { TProduct } from "./product.interface";
+import { ProductCategoryList, TProduct } from "./product.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { ProductSearchableFields } from "./product.constant";
 
@@ -31,7 +31,7 @@ const getAllBrandModelAndCategoryFromDB = async () => {
       $project: {
         brand: { $toLower: "$brand" },
         model: { $toLower: "$model" },
-        category: { $toLower: "$category" },
+        // category: { $toLower: "$category" },
       },
     },
     {
@@ -39,7 +39,7 @@ const getAllBrandModelAndCategoryFromDB = async () => {
         _id: null,
         brands: { $addToSet: "$brand" },
         models: { $addToSet: "$model" },
-        categories: { $addToSet: "$category" },
+        // categories: { $addToSet: "$category" },
       },
     },
     {
@@ -47,11 +47,13 @@ const getAllBrandModelAndCategoryFromDB = async () => {
         _id: 0,
         brands: { $sortArray: { input: "$brands", sortBy: 1 } },
         models: { $sortArray: { input: "$models", sortBy: 1 } },
-        categories: { $sortArray: { input: "$categories", sortBy: 1 } },
+        // categories: { $sortArray: { input: "$categories", sortBy: 1 } },
       },
     },
   ]);
-  return result.length ? result[0] : { brands: [], models: [], categories: [] };
+  return result.length
+    ? { ...result[0], categories: ProductCategoryList }
+    : { brands: [], models: [], categories: [] };
 };
 
 const createProductIntoDB = async (productData: TProduct) => {
