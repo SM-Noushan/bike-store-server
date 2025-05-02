@@ -50,8 +50,8 @@
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/sm-noushan/bike-store-server.git
-   cd bike-store-server
+   git clone https://github.com/tanvir50/suzukiriderszone-server.git
+   cd suzukiriderszone-server
    ```
 
 2. Install dependencies:
